@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item name="RESULT_OK" type="result"/>
-    <item name="RESULT_NOT_CONNECTED" type="result"/>
-    <item name="RESULT_ERROR" type="result"/>
-    
-</resources>

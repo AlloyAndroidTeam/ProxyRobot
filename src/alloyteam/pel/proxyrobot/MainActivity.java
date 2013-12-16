@@ -45,7 +45,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			Toast.makeText(getApplicationContext(), R.string.set_proxy_error_param, Toast.LENGTH_LONG).show();
 			return;
 		}
-		if (ProxyUtils.setWifiProxy(enabled, host, port) == R.result.RESULT_OK) {
+		if (ProxyUtils.setWifiProxy(enabled, host, port) == ProxyUtils.RESULT_OK) {
 			Toast.makeText(getApplicationContext(), getString(R.string.set_proxy_success, host, port), Toast.LENGTH_LONG).show();
 		} else {
 			Toast.makeText(getApplicationContext(), R.string.set_proxy_fail, Toast.LENGTH_LONG).show();

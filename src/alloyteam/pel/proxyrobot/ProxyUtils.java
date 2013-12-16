@@ -13,6 +13,10 @@ import android.os.Build;
 
 
 public class ProxyUtils {
+    public static final int RESULT_OK = 0;
+    public static final int RESULT_NOT_CONNECTED = 1;
+    public static final int RESULT_ERROR = 2;
+
 	private static boolean isParameterTypesMatch(Class<?>[] params1, Class<?>[] params2) {
 		if (params1.length != params2.length) {
 			return false;
@@ -49,9 +53,9 @@ public class ProxyUtils {
 		throw new NoSuchMethodException();
 	}
 	/**
-	 * ´ÓwifiÅäÖÃÁĞ±íÖĞÈ¡µ±Ç°Á¬½ÓµÄÅäÖÃ
+	 * ä»wifié…ç½®åˆ—è¡¨ä¸­å–å½“å‰è¿æ¥çš„é…ç½®
 	 * @param wm
-	 * @return µ±Ç°ÅäÖÃ£¬»òÕßnull
+	 * @return å½“å‰é…ç½®ï¼Œæˆ–è€…null
 	 */
 	private static WifiConfiguration GetCurrentWifiConfiguration(WifiManager wm) {
 		if (!wm.isWifiEnabled()) {
@@ -75,10 +79,10 @@ public class ProxyUtils {
 	}
 	
 	/**
-	 * ĞŞ¸Äµ±Ç°wifiÁ¬½ÓµÄ´úÀí
+	 * ä¿®æ”¹å½“å‰wifiè¿æ¥çš„ä»£ç†
 	 * @param enabled
 	 * @param host
-	 * @param port
+	 * @param strPort
 	 * @return
 	 */
 	static int setWifiProxy(boolean enabled, String host, String strPort) {
@@ -86,13 +90,13 @@ public class ProxyUtils {
 		WifiManager wm = (WifiManager) MyApp.getApp().getSystemService(Context.WIFI_SERVICE);
 		WifiConfiguration config = GetCurrentWifiConfiguration(wm);
 		if (config == null) {
-			return R.result.RESULT_NOT_CONNECTED;
+			return RESULT_NOT_CONNECTED;
 		}
 		try {
 			// get the link properties from the wifi configuration
 			Object linkProp = WifiConfiguration.class.getField("linkProperties").get(config);
 			if (linkProp == null) {
-				return R.result.RESULT_ERROR;
+				return RESULT_ERROR;
 			}
 			// get the setHttpProxy method for LinkProperties
 			Class<?> ProxyProperties = Class.forName("android.net.ProxyProperties");
@@ -119,7 +123,7 @@ public class ProxyUtils {
 				//wm.saveConfiguration();
 				wm.disconnect();
 				wm.reconnect();
-				return R.result.RESULT_OK;
+				return RESULT_OK;
 			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -138,6 +142,6 @@ public class ProxyUtils {
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
-		return R.result.RESULT_ERROR;
+		return RESULT_ERROR;
 	}
 }
