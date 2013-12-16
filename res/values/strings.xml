@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Proxy Robot</string>
+    <string name="submit_proxy">设置代理</string>
+    <string name="clear_proxy">清除代理</string>
+    <string name="set_proxy_error_param">参数错误</string>
+    <string name="set_proxy_success">代理设置成功\nhost：%1$s\nport：%2$s</string>
+    <string name="set_proxy_fail">代理设置失败</string>
+    <string name="host">host</string>
+    <string name="port">port</string>
+
+</resources>
