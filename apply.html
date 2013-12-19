@@ -20,7 +20,7 @@
 <body>
 	<h1>Proxy Robot</h1>
 	<div>
-		<a id="download" href="#">Get ProxyRobot App</a>
+		<a id="download" href="./ProxyRobot.apk">Get ProxyRobot App</a>
 		<a id="apply" href="#">Apply Proxy Settings</a>
 	</div>
 	<script>
@@ -29,7 +29,15 @@
 		var query = location.search;
 		var host = (query.match(/host=([^&]+)/)||[])[1];
 		var port = (query.match(/port=([^&]+)/)||[])[1];
-		var url = 'proxyrobot://apply/?host='+host+'&port='+port;
+		var ua = navigator.userAgent;
+		var url;
+		if (!(/android/i).test(ua)) {
+			url = 'javascript:alert(\'For Android only\');';
+		} else if ((/chrome/i).test(ua)) {
+			url = 'intent://apply/?host='+host+'&port='+port+'#Intent;scheme=proxyrobot;end;';
+		} else {
+			url = 'proxyrobot://apply/?host='+host+'&port='+port;
+		}
 		document.getElementById('apply').href=url;
 	}();
 	</script>
