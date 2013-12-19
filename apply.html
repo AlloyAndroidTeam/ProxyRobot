@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+	<meta name="format-detection" content="telephone=no" />
+	<style>
+	body {
+		font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
+	}
+	a {
+		display: block; width: 200px; margin: 5px; padding: 5px; border-radius: 5px; border: 1px solid blue; color: blue; background: white; text-decoration: none; text-align: center;
+	}
+	a:hover {
+		background: blue; color: white;
+	}
+	</style>
+	<title>Proxy Robot</title>
+</head>
+<body>
+	<h1>Proxy Robot</h1>
+	<div>
+		<a id="download" href="#">Get ProxyRobot App</a>
+		<a id="apply" href="#">Apply Proxy Settings</a>
+	</div>
+	<script>
+	~function(){
+		"use struct";
+		var query = location.search;
+		var host = (query.match(/host=([^&]+)/)||[])[1];
+		var port = (query.match(/port=([^&]+)/)||[])[1];
+		var url = 'proxyrobot://apply/?host='+host+'&port='+port;
+		document.getElementById('apply').href=url;
+	}();
+	</script>
+</body>
+</html>
