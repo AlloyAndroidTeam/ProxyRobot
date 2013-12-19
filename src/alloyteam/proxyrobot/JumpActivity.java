@@ -1,8 +1,9 @@
-package alloyteam.pel.proxyrobot;
+package alloyteam.proxyrobot;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import alloyteam.pel.proxyrobot.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;

@@ -1,4 +1,5 @@
-package alloyteam.pel.proxyrobot;
+package alloyteam.proxyrobot;
+import alloyteam.pel.proxyrobot.R;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,9 @@ public class ProxyReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		if (isOrderedBroadcast()) {
+			abortBroadcast();
+		}
         boolean enabled = intent.getBooleanExtra("enabled", true);
 		String host = intent.getStringExtra("host");
 		String port = intent.getStringExtra("port");

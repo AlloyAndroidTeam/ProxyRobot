@@ -1,5 +1,6 @@
-package alloyteam.pel.proxyrobot;
+package alloyteam.proxyrobot;
 
+import alloyteam.pel.proxyrobot.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;

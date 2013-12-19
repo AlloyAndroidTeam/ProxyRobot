@@ -1,4 +1,4 @@
-package alloyteam.pel.proxyrobot;
+package alloyteam.proxyrobot;
 import android.app.Application;
 import android.content.Context;
 

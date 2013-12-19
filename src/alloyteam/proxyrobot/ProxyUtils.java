@@ -1,11 +1,10 @@
-package alloyteam.pel.proxyrobot;
+package alloyteam.proxyrobot;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import alloyteam.pel.proxyrobot.R;
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
