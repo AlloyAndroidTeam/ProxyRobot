@@ -42,7 +42,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data
                     android:scheme="http"
-                    android:host="github.io" />
+                    android:host="alloyandroidteam.github.io"
+                    android:pathPrefix="/ProxyRobot/apply" />
             </intent-filter>
             </activity>
 
