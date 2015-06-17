@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import android.content.Context;
+import android.net.ProxyInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -92,32 +93,51 @@ public class ProxyUtils {
 			return RESULT_NOT_CONNECTED;
 		}
 		try {
-			// get the link properties from the wifi configuration
-			Object linkProp = WifiConfiguration.class.getField("linkProperties").get(config);
-			if (linkProp == null) {
-				return RESULT_ERROR;
-			}
-			// get the setHttpProxy method for LinkProperties
-			Class<?> ProxyProperties = Class.forName("android.net.ProxyProperties");
-			Method setHttpProxy = getDeclaredMethod(linkProp.getClass(), "setHttpProxy", ProxyProperties);
-			setHttpProxy.setAccessible(true);
-			String assign;
-			Object settings = null;
-			if (enabled) {
-				int port = Integer.parseInt(strPort, 10);
-				if (port <= 0) {
-					throw new IllegalArgumentException("port error");
-				}
-				assign = "STATIC";
-				// new ProxyProperties
-				settings = getDeclaredConstructor(ProxyProperties,
-						String.class, int.class, String.class).newInstance(host, port, null);
-			} else {
-				assign = "NONE";
-			}
-			setHttpProxy.invoke(linkProp, settings);
-			Field proxySettings = WifiConfiguration.class.getField("proxySettings");
-			proxySettings.set(config, Enum.valueOf((Class<Enum>) proxySettings.getType(), assign));
+            if (Build.VERSION.SDK_INT < 21) {
+                // get the link properties from the wifi configuration
+                Object linkProp = WifiConfiguration.class.getField("linkProperties").get(config);
+                if (linkProp == null) {
+                    return RESULT_ERROR;
+                }
+                // get the setHttpProxy method for LinkProperties
+                Class<?> ProxyProperties = Class.forName("android.net.ProxyProperties");
+                Method setHttpProxy = getDeclaredMethod(linkProp.getClass(), "setHttpProxy", ProxyProperties);
+                setHttpProxy.setAccessible(true);
+                String assign;
+                Object settings = null;
+                if (enabled) {
+                    int port = Integer.parseInt(strPort, 10);
+                    if (port <= 0) {
+                        throw new IllegalArgumentException("port error");
+                    }
+                    assign = "STATIC";
+                    // new ProxyProperties
+                    settings = getDeclaredConstructor(ProxyProperties,
+                            String.class, int.class, String.class).newInstance(host, port, null);
+                } else {
+                    assign = "NONE";
+                }
+                setHttpProxy.invoke(linkProp, settings);
+                Field proxySettings = WifiConfiguration.class.getField("proxySettings");
+                proxySettings.set(config, Enum.valueOf((Class<Enum>) proxySettings.getType(), assign));
+            } else {
+                String assign;
+                ProxyInfo settings = null;
+                if (enabled) {
+                    int port = Integer.parseInt(strPort, 10);
+                    if (port <= 0) {
+                        throw new IllegalArgumentException("port error");
+                    }
+                    assign = "STATIC";
+                    // new ProxyProperties
+                    settings = ProxyInfo.buildDirectProxy(host, port);
+                } else {
+                    assign = "NONE";
+                }
+                Class proxySettings = Class.forName("android.net.IpConfiguration$ProxySettings");
+                Method setProxy = WifiConfiguration.class.getDeclaredMethod("setProxy", proxySettings, ProxyInfo.class);
+                setProxy.invoke(config, Enum.valueOf((Class<Enum>) proxySettings, assign), settings);
+            }
 			if (wm.updateNetwork(config) != -1) {
 				//wm.saveConfiguration();
 				wm.disconnect();
