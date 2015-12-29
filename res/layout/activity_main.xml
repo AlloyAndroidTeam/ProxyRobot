@@ -25,12 +25,14 @@
         android:id="@+id/submitProxy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onClick"
         android:text="@string/submit_proxy" />
 
     <Button
         android:id="@+id/clearProxy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onClick"
         android:text="@string/clear_proxy" />
 
 </LinearLayout>

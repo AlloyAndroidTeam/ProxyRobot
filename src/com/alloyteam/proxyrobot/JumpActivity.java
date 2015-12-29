@@ -1,9 +1,8 @@
-package alloyteam.proxyrobot;
+package com.alloyteam.proxyrobot;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import alloyteam.pel.proxyrobot.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -26,9 +25,10 @@ public class JumpActivity extends Activity {
         }
     	String host = matcher.group(1);
     	String port = matcher.group(2);
-		if (ProxyUtils.setWifiProxy(true, host, port) == ProxyUtils.RESULT_OK) {
+        int result = ProxyUtils.setWifiProxy(true, host, port);
+		if (result == ProxyUtils.RESULT_OK) {
 			Toast.makeText(this, getString(R.string.set_proxy_success, host, port), Toast.LENGTH_LONG).show();
-		} else {
+		} else if (result != ProxyUtils.RESULT_NEED_MORE_OPERATE) {
 			Toast.makeText(this, R.string.set_proxy_fail, Toast.LENGTH_LONG).show();
 		}
     }

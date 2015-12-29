@@ -1,5 +1,4 @@
-package alloyteam.proxyrobot;
-import alloyteam.pel.proxyrobot.R;
+package com.alloyteam.proxyrobot;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,9 +20,10 @@ public class ProxyReceiver extends BroadcastReceiver {
 			Toast.makeText(context, R.string.set_proxy_error_param, Toast.LENGTH_LONG).show();
 			return;
 		}
-		if (ProxyUtils.setWifiProxy(enabled, host, port) == ProxyUtils.RESULT_OK) {
+		int result = ProxyUtils.setWifiProxy(enabled, host, port);
+		if (result == ProxyUtils.RESULT_OK) {
 			Toast.makeText(context, context.getString(R.string.set_proxy_success, host, port), Toast.LENGTH_LONG).show();
-		} else {
+		} else if (result != ProxyUtils.RESULT_NEED_MORE_OPERATE) {
 			Toast.makeText(context, R.string.set_proxy_fail, Toast.LENGTH_LONG).show();
 		}
 	}

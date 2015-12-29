@@ -7,7 +7,12 @@
     <string name="set_proxy_error_param">参数错误</string>
     <string name="set_proxy_success">代理设置成功\nhost：%1$s\nport：%2$s</string>
     <string name="set_proxy_fail">代理设置失败</string>
+    <string name="set_proxy_lollipop">代理设置失败，Android 6.0限制APP只能修改自己添加的热点。需要前往系统设置把热点 %1$s 移除，再继续设置（同一热点仅需操作一次）%2$s。是否前往系统设置？</string>
+    <string name="set_proxy_need_password">，需要重新输入WiFi密码</string>
     <string name="host">host</string>
     <string name="port">port</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="submit">提交</string>
 
 </resources>

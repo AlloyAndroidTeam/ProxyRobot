@@ -1,57 +1,26 @@
-package alloyteam.proxyrobot;
-import java.lang.reflect.Constructor;
+package com.alloyteam.proxyrobot;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ProxyInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.text.TextUtils;
 
 
 public class ProxyUtils {
     public static final int RESULT_OK = 0;
     public static final int RESULT_NOT_CONNECTED = 1;
     public static final int RESULT_ERROR = 2;
+	public static final int RESULT_NEED_PASSWORD = 3;
+	public static final int RESULT_ALREADY_EXIST = 4;
+	public static final int RESULT_NEED_MORE_OPERATE = 5;
 
-	private static boolean isParameterTypesMatch(Class<?>[] params1, Class<?>[] params2) {
-		if (params1.length != params2.length) {
-			return false;
-		}
-		for (int i = 0, len = params1.length; i < len; ++i) {
-			if (params1[i] != params2[i]) {
-				return false;
-			}
-		}
-		return true;
-	}
-	private static Method getDeclaredMethod (Class<?> cz, String name, Class ...parameterTypes) throws NoSuchMethodException {
-		if (Build.VERSION.SDK_INT >= 9) {
-			return cz.getDeclaredMethod(name, parameterTypes);
-		}
-		Method[] methods = cz.getDeclaredMethods();
-		for (Method method : methods) {
-			if (method.getName().equals(name) && isParameterTypesMatch(parameterTypes, method.getParameterTypes())) {
-				return method;
-			}
-		}
-		throw new NoSuchMethodException();
-	}
-	private static Constructor<?> getDeclaredConstructor(Class<?> cz, Class ...parameterTypes) throws NoSuchMethodException {
-		if (Build.VERSION.SDK_INT >= 9) {
-			return cz.getConstructor(parameterTypes);
-		}
-		Constructor<?>[] cs = cz.getDeclaredConstructors();
-		for (Constructor<?> c : cs) {
-			if (isParameterTypesMatch(parameterTypes, c.getParameterTypes())) {
-				return c;
-			}
-		}
-		throw new NoSuchMethodException();
-	}
 	/**
 	 * 从wifi配置列表中取当前连接的配置
 	 * @param wm
@@ -101,7 +70,7 @@ public class ProxyUtils {
                 }
                 // get the setHttpProxy method for LinkProperties
                 Class<?> ProxyProperties = Class.forName("android.net.ProxyProperties");
-                Method setHttpProxy = getDeclaredMethod(linkProp.getClass(), "setHttpProxy", ProxyProperties);
+                Method setHttpProxy = linkProp.getClass().getDeclaredMethod("setHttpProxy", ProxyProperties);
                 setHttpProxy.setAccessible(true);
                 String assign;
                 Object settings = null;
@@ -112,8 +81,7 @@ public class ProxyUtils {
                     }
                     assign = "STATIC";
                     // new ProxyProperties
-                    settings = getDeclaredConstructor(ProxyProperties,
-                            String.class, int.class, String.class).newInstance(host, port, null);
+                    settings = ProxyProperties.getDeclaredConstructor(String.class, int.class, String.class).newInstance(host, port, null);
                 } else {
                     assign = "NONE";
                 }
@@ -138,28 +106,66 @@ public class ProxyUtils {
                 Method setProxy = WifiConfiguration.class.getDeclaredMethod("setProxy", proxySettings, ProxyInfo.class);
                 setProxy.invoke(config, Enum.valueOf((Class<Enum>) proxySettings, assign), settings);
             }
-			if (wm.updateNetwork(config) != -1) {
-				//wm.saveConfiguration();
-				wm.disconnect();
-				wm.reconnect();
+		} catch (IllegalArgumentException | IllegalAccessException | NoSuchMethodException | NoSuchFieldException | InstantiationException | InvocationTargetException | ClassNotFoundException | SecurityException e) {
+			e.printStackTrace();
+			return RESULT_ERROR;
+		}
+		int networkId = wm.updateNetwork(config);
+		if (networkId != -1) {
+			wm.disconnect();
+			wm.enableNetwork(networkId, true);
+			return RESULT_OK;
+		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			MyApp.getApp().startActivity(
+					new Intent(MyApp.getApp(), RetryActivity.class)
+							.putExtra(RetryActivity.KEY_CONFIG, config)
+							.putExtra(RetryActivity.KEY_HOST, host)
+							.putExtra(RetryActivity.KEY_PORT, strPort)
+							.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+			);
+			return RESULT_NEED_MORE_OPERATE;
+		}
+		return RESULT_ERROR;
+	}
+
+	static boolean isNetworkExist(WifiConfiguration config) {
+		WifiManager wm = (WifiManager) MyApp.getApp().getSystemService(Context.WIFI_SERVICE);
+		Iterable<WifiConfiguration> existingConfigs = wm.getConfiguredNetworks();
+		if (existingConfigs != null) {
+			String ssid = config.SSID;
+			for (WifiConfiguration existingConfig : existingConfigs) {
+				if (existingConfig.SSID.equals(ssid)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 添加并连接到新的wifi热点
+	 * @param config 新热点（带proxy信息）
+	 * @param password 当config为wep或wpa类型时需要
+     * @return
+     */
+	static int connectToNewNetwork(WifiConfiguration config, String password) {
+		WifiManager wm = (WifiManager) MyApp.getApp().getSystemService(Context.WIFI_SERVICE);
+		if (config.wepKeys[0] != null) { // wep
+			if (TextUtils.isEmpty(password)) {
+				return RESULT_NEED_PASSWORD;
+			}
+			config.wepKeys[0] = '\"' + password + '\"';
+		} else if (config.preSharedKey != null) { // wpa
+			if (TextUtils.isEmpty(password)) {
+				return RESULT_NEED_PASSWORD;
+			}
+			config.preSharedKey = '\"' + password + '\"';
+		}
+		int networkId = wm.addNetwork(config);
+		if (networkId != -1) {
+			if (wm.enableNetwork(networkId, true)) {
 				return RESULT_OK;
 			}
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
 		}
 		return RESULT_ERROR;
 	}
